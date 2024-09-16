@@ -3,13 +3,10 @@
 
 import sys
 import time
-from flask import Flask
 import requests
 import tweepy
 import json
 import os
-
-app = Flask(__name__)
 
 
 # Function to display welcome message in a border
@@ -56,18 +53,23 @@ def display_starting_message():
     sys.stdout.write(f"\r+{'-' * border_length}+\n")
     sys.stdout.write(f"|  {message}  |\n")
     sys.stdout.write(f"+{'-' * border_length}+\n")
+
+
+    print("\n◢ S34RCH1NG F0R NEW T0K3N — 🟥\n")
+    print("▫ Generating ...\n")
+
     sys.stdout.flush()
 
 
-# Display welcome message, loading bar, and starting message before running the app
+# Display welcome message, loading bar, and starting message before running the bot
 display_welcome_message()
 loading_bar(duration=5)
 display_starting_message()
 
 # Twitter API credentials
 api_key = "hQJON271Fe1qBZX8AzMNzVgTU"
-api_secret = "qHl5QChnTwP9fqwcodtlqnUayVYkQXCP5pYJgf0W51c3ICebHIx"
-bearer_token = "AAAAAAAAAAAAAAAAAAAAANidvwEAAAAAlOBUWNuuA0bkN3T3zxhrOLF5pkQ%3DteSVA55Qffpj30OBsNJtzsySswbXnkj2fJz1LAkaC6Sj71Ge3Kx"
+api_secret = "qHl5QChnTwP9fqwcodtlqnUayVYkQXCP5pYJgf0W51c3ICebHI"
+bearer_token = "AAAAAAAAAAAAAAAAAAAAANidvwEAAAAAlOBUWNuuA0bkN3T3zxhrOLF5pkQ%3DteSVA55Qffpj30OBsNJtzsySswbXnkj2fJz1LAkaC6Sj71Ge3K"
 access_token = "1608905689531056128-zENv5oO0jINgg2iaBUkQmf46OXmDIax"
 access_token_secret = "0POPIqLwerX1AOBaIROX2MJpqIXqTFp5BeDGA48BULTP6x"
 
@@ -80,7 +82,6 @@ api = tweepy.API(auth)
 stored_tokens_file = "stored_tokens.txt"
 image_file = "token_image.png"  # Temporary image file path
 
-
 # Function to get previously stored tokens
 def get_stored_tokens():
     if os.path.exists(stored_tokens_file):
@@ -88,12 +89,10 @@ def get_stored_tokens():
             return f.read().strip()
     return ""
 
-
 # Function to update the stored token
 def update_stored_token(token):
     with open(stored_tokens_file, "w") as f:
         f.write(token)
-
 
 # Function to get the latest token from the API
 def get_latest_token():
@@ -119,12 +118,13 @@ def get_token_details(policy_id):
             token_name = token_details.get('name')
             ticker = token_details.get('ticker', '')
             logo_cid = token_details.get('logoCid', '')
+            policyid = token_details.get('policyId', '')
 
             # Construct the image URL
             image_url = f"https://snekdotfun.mypinata.cloud/ipfs/{logo_cid}" if logo_cid else None
 
             print(f"Image URL: {image_url}")  # Debugging statement
-            return token_name, ticker, image_url
+            return token_name, ticker, image_url, policyid
         except json.JSONDecodeError:
             print(f"Error: Failed to parse JSON for policy ID {policy_id}")
             return None, None, None
@@ -153,44 +153,54 @@ def download_image(image_url, file_path):
         return False
 
 
-@app.route("/")
-def index():
-    # Get the previously stored token
-    stored_token = get_stored_tokens()
+# Main function to run the bot continuously
+def run_bot():
 
-    # Fetch the latest token from the API
-    latest_token = get_latest_token()
+    while True:
+        # Get the previously stored token
+        stored_token = get_stored_tokens()
 
-    # Check if the latest token is different from the stored token
-    if latest_token != stored_token:
-        # Extract the policy ID directly from the asset ID
-        policy_id = latest_token
+        # Fetch the latest token from the API
+        latest_token = get_latest_token()
 
-        # Get token details using the policyId
-        token_name, ticker, image_url = get_token_details(policy_id)
+        # Check if the latest token is different from the stored token
+        if latest_token and latest_token != stored_token:
+            # Extract the policy ID directly from the asset ID
+            policy_id = latest_token
 
-        if token_name:
-            # Download the image
-            if image_url and download_image(image_url, image_file):
-                # Upload the image and tweet
-                media = api.media_upload(image_file)
-                tweet_content = f"🚀 New Crypto Token: {token_name} ({ticker})"
-                client.create_tweet(text=tweet_content, media_ids=[media.media_id])
-                print(f"Tweeted: {tweet_content} with image")
+            # Get token details using the policyId
+            token_name, ticker, image_url , policyid = get_token_details(policy_id)
 
-                # Remove the image file after tweeting
-                os.remove(image_file)
-            else:
-                # Tweet without image
-                tweet_content = f"🚀 New Crypto Token: {token_name} ({ticker})"
-                client.create_tweet(text=tweet_content)
-                print(f"Tweeted: {tweet_content}")
+            if token_name:
+                # Download the image
+                if image_url and download_image(image_url, image_file):
+                    # Upload the image and tweet
+                    media = api.media_upload(image_file)
+                    tweet_content = (f"◢ NEW TOKEN on snekdotfun ◣"                        
+                                     f"\n■■■■■■■■□□□\n→ Generating token metadata ...\n"
+                                     f"\nName: {token_name}" 
+                                     f"\nTicker: {ticker}"
+                                     f"\nPolicy ID: {policyid}")
+                    client.create_tweet(text=tweet_content, media_ids=[media.media_id])
+                    print(f"Tweeted: {tweet_content} with image")
 
-            # Update the stored token with the latest one
-            update_stored_token(latest_token)
+                    # Remove the image file after tweeting
+                    os.remove(image_file)
+                else:
+                    # Tweet without image
+                    tweet_content = f"🚀 New Crypto Token: {token_name} ({ticker})"
+                    client.create_tweet(text=tweet_content)
+                    print(f"Tweeted: {tweet_content}")
 
-    return "<p>Checked for new tokens and tweeted if there was a change!</p>"
+                # Update the stored token with the latest one
+                update_stored_token(latest_token)
 
+                # Add the new text in a border after tweeting
+                print("\n◢ S34RCH1NG F0R NEW T0K3N — 🟥\n")
+                print("▫ Generating ...\n")
+
+        # Sleep for a while before checking again (e.g., every 1 minutes)
+        time.sleep(60)
 
 if __name__ == "__main__":
-    app.run()
+    run_bot()
