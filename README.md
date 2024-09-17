@@ -20,4 +20,16 @@
 3) source venv/bin/activate
 4) python app.py
 
+# Troubleshoot SSL issue
+
+# Suppress InsecureRequestWarning
+
+```import urllib3
+
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
+#add below code to each api url request
+response = requests.get(details_url, verify=False)
+response = requests.get(image_url, verify=False)
+```
 
