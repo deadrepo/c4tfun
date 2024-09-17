@@ -67,11 +67,11 @@ loading_bar(duration=5)
 display_starting_message()
 
 # Twitter API credentials
-api_key = "hQJON271Fe1qBZX8AzMNzVgTU"
-api_secret = "qHl5QChnTwP9fqwcodtlqnUayVYkQXCP5pYJgf0W51c3ICebHI"
-bearer_token = "AAAAAAAAAAAAAAAAAAAAANidvwEAAAAAlOBUWNuuA0bkN3T3zxhrOLF5pkQ%3DteSVA55Qffpj30OBsNJtzsySswbXnkj2fJz1LAkaC6Sj71Ge3K"
-access_token = "1608905689531056128-zENv5oO0jINgg2iaBUkQmf46OXmDIax"
-access_token_secret = "0POPIqLwerX1AOBaIROX2MJpqIXqTFp5BeDGA48BULTP6x"
+api_key = ""
+api_secret = ""
+bearer_token = ""
+access_token = ""
+access_token_secret = ""
 
 # Authenticate with Twitter
 client = tweepy.Client(bearer_token, api_key, api_secret, access_token, access_token_secret)
