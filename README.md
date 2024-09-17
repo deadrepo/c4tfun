@@ -19,6 +19,8 @@
 2) tmux new -s bot_session
 3) source venv/bin/activate
 4) python app.py
+5) Press Ctrl + b, then type :detach and press Enter [to detach]
+6) tmux attach-session -t bot_session [To reconnect]
 
 # Troubleshoot SSL issue
 
