@@ -23,8 +23,8 @@
 # Troubleshoot SSL issue
 
 # Suppress InsecureRequestWarning
-
-```import urllib3
+```
+import urllib3
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
